@@ -770,7 +770,7 @@ class CardDavBackend implements BackendInterface, SyncSupport {
 	 * @param string $cardUri
 	 * @return bool
 	 */
-	public function deleteCard($addressBookId, $cardUri) {
+	public function deleteCard($addressBookId, $cardUri): bool {
 		$addressBookData = $this->getAddressBookById($addressBookId);
 		$shares = $this->getShares($addressBookId);
 		$objectRow = $this->getCard($addressBookId, $cardUri);

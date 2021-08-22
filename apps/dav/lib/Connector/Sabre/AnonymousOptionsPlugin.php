@@ -51,14 +51,16 @@ class AnonymousOptionsPlugin extends ServerPlugin {
 	}
 
 	/**
+	 * @param string $path
 	 * @return bool
 	 */
-	public function isRequestInRoot($path) {
-		return $path === '' || (is_string($path) && strpos($path, '/') === false);
+	public function isRequestInRoot(string $path): bool {
+		return $path === '' || (strpos($path, '/') === false);
 	}
 
 	/**
-	 * @throws \Sabre\DAV\Exception\Forbidden
+	 * @param RequestInterface $request
+	 * @param ResponseInterface $response
 	 * @return bool
 	 */
 	public function handleAnonymousOptions(RequestInterface $request, ResponseInterface $response) {
@@ -77,7 +79,7 @@ class AnonymousOptionsPlugin extends ServerPlugin {
 			$this->server->emit('afterMethod:*', [$request, $response]);
 			$this->server->emit('afterMethod:OPTIONS', [$request, $response]);
 
-			$this->server->sapi->sendResponse($response);
+			$this->server->sapi::sendResponse($response);
 			return false;
 		}
 	}

@@ -67,10 +67,10 @@ use OCP\EventDispatcher\IEventDispatcher;
 use OCP\IConfig;
 use OCP\IDBConnection;
 use OCP\IGroupManager;
-use OCP\ILogger;
 use OCP\IUser;
 use OCP\IUserManager;
 use OCP\Security\ISecureRandom;
+use Psr\Log\LoggerInterface;
 use RuntimeException;
 use Sabre\CalDAV\Backend\AbstractBackend;
 use Sabre\CalDAV\Backend\SchedulingSupport;
@@ -200,7 +200,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	/** @var ISecureRandom */
 	private $random;
 
-	/** @var ILogger */
+	/** @var LoggerInterface */
 	private $logger;
 
 	/** @var IEventDispatcher */
@@ -226,7 +226,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @param IUserManager $userManager
 	 * @param IGroupManager $groupManager
 	 * @param ISecureRandom $random
-	 * @param ILogger $logger
+	 * @param LoggerInterface $logger
 	 * @param IEventDispatcher $dispatcher
 	 * @param EventDispatcherInterface $legacyDispatcher
 	 * @param bool $legacyEndpoint
@@ -236,7 +236,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 								IUserManager $userManager,
 								IGroupManager $groupManager,
 								ISecureRandom $random,
-								ILogger $logger,
+								LoggerInterface $logger,
 								IEventDispatcher $dispatcher,
 								EventDispatcherInterface $legacyDispatcher,
 								IConfig $config,
@@ -1671,15 +1671,12 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 				try {
 					$matches = $this->validateFilterForObject($row, $filters);
 				} catch (ParseException $ex) {
-					$this->logger->logException($ex, [
-						'app' => 'dav',
-						'message' => 'Caught parsing exception for calendar data. This usually indicates invalid calendar data. calendar-id:'.$calendarId.' uri:'.$row['uri']
-					]);
+					$this->logger->error('Caught parsing exception for calendar data. This usually indicates invalid calendar data. calendar-id:'.$calendarId.' uri:'.$row['uri'], ['exception' => $ex, 'app' => 'dav']);
 					continue;
 				} catch (InvalidDataException $ex) {
-					$this->logger->logException($ex, [
+					$this->logger->error('Caught invalid data exception for calendar data. This usually indicates invalid calendar data. calendar-id:'.$calendarId.' uri:'.$row['uri'], [
 						'app' => 'dav',
-						'message' => 'Caught invalid data exception for calendar data. This usually indicates invalid calendar data. calendar-id:'.$calendarId.' uri:'.$row['uri']
+						'exception' => $ex
 					]);
 					continue;
 				}
@@ -2706,7 +2703,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 	 * @param string $calendarData
 	 * @return array
 	 */
-	public function getDenormalizedData($calendarData) {
+	public function getDenormalizedData(string $calendarData): array {
 		$vObject = Reader::read($calendarData);
 		$vEvents = [];
 		$componentType = null;
@@ -2720,7 +2717,7 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 			if ($component->name !== 'VTIMEZONE') {
 				// Finding all VEVENTs, and track them
 				if ($component->name === 'VEVENT') {
-					array_push($vEvents, $component);
+					$vEvents[] = $component;
 					if ($component->DTSTART) {
 						$hasDTSTART = true;
 					}
@@ -2773,13 +2770,13 @@ class CalDavBackend extends AbstractBackend implements SyncSupport, Subscription
 		}
 
 		if ($component->CLASS) {
-			$classification = CalDavBackend::CLASSIFICATION_PRIVATE;
+			$classification = self::CLASSIFICATION_PRIVATE;
 			switch ($component->CLASS->getValue()) {
 				case 'PUBLIC':
-					$classification = CalDavBackend::CLASSIFICATION_PUBLIC;
+					$classification = self::CLASSIFICATION_PUBLIC;
 					break;
 				case 'CONFIDENTIAL':
-					$classification = CalDavBackend::CLASSIFICATION_CONFIDENTIAL;
+					$classification = self::CLASSIFICATION_CONFIDENTIAL;
 					break;
 			}
 		}

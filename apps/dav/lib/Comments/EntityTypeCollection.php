@@ -24,11 +24,12 @@
 namespace OCA\DAV\Comments;
 
 use OCP\Comments\ICommentsManager;
-use OCP\ILogger;
 use OCP\IUserManager;
 use OCP\IUserSession;
+use Psr\Log\LoggerInterface;
 use Sabre\DAV\Exception\MethodNotAllowed;
 use Sabre\DAV\Exception\NotFound;
+use Sabre\DAV\INode;
 
 /**
  * Class EntityTypeCollection
@@ -43,7 +44,7 @@ use Sabre\DAV\Exception\NotFound;
  */
 class EntityTypeCollection extends RootCollection {
 
-	/** @var ILogger */
+	/** @var LoggerInterface */
 	protected $logger;
 
 	/** @var IUserManager */
@@ -57,7 +58,7 @@ class EntityTypeCollection extends RootCollection {
 	 * @param ICommentsManager $commentsManager
 	 * @param IUserManager $userManager
 	 * @param IUserSession $userSession
-	 * @param ILogger $logger
+	 * @param LoggerInterface $logger
 	 * @param \Closure $childExistsFunction
 	 */
 	public function __construct(
@@ -65,7 +66,7 @@ class EntityTypeCollection extends RootCollection {
 		ICommentsManager $commentsManager,
 		IUserManager $userManager,
 		IUserSession $userSession,
-		ILogger $logger,
+		LoggerInterface $logger,
 		\Closure $childExistsFunction
 	) {
 		$name = trim($name);
@@ -87,7 +88,7 @@ class EntityTypeCollection extends RootCollection {
 	 * exist.
 	 *
 	 * @param string $name
-	 * @return \Sabre\DAV\INode
+	 * @return INode
 	 * @throws NotFound
 	 */
 	public function getChild($name) {
@@ -107,7 +108,7 @@ class EntityTypeCollection extends RootCollection {
 	/**
 	 * Returns an array with all the child nodes
 	 *
-	 * @return \Sabre\DAV\INode[]
+	 * @return void
 	 * @throws MethodNotAllowed
 	 */
 	public function getChildren() {
