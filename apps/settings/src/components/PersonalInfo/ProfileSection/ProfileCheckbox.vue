@@ -88,7 +88,7 @@ export default {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
 				this.initialProfileEnabled = isEnabled
-				emit('settings:profileEnabled:updated', isEnabled)
+				emit('settings:profile-enabled:updated', isEnabled)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {

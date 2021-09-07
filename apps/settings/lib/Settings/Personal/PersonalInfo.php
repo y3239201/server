@@ -151,6 +151,7 @@ class PersonalInfo implements ISettings {
 			'emails' => $this->getEmails($account),
 			'languages' => $this->getLanguages($user),
 			'profileEnabled' => $this->getProfileEnabled($account),
+			'companies' => $this->getCompanies($account),
 		];
 
 		$accountParameters = [
@@ -162,6 +163,29 @@ class PersonalInfo implements ISettings {
 		$this->initialStateService->provideInitialState('accountParameters', $accountParameters);
 
 		return new TemplateResponse('settings', 'settings/personal/personal.info', $parameters, '');
+	}
+
+		/**
+	 * returns the primary display name in an
+	 * associative array
+	 *
+	 * NOTE may be extended to provide additional companies in the future
+	 *
+	 * @param IAccount $account
+	 * @return array
+	 */
+	private function getCompanies(IAccount $account): array {
+		$primaryCompany = [
+			'value' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getValue(),
+			'scope' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getScope(),
+			'verified' => $account->getProperty(IAccountManager::PROPERTY_COMPANY)->getVerified(),
+		];
+
+		$companies = [
+			'primaryCompany' => $primaryCompany,
+		];
+
+		return $companies;
 	}
 
 	/**

@@ -20,21 +20,20 @@
 -->
 
 <template>
-	<div class="displayname">
+	<div class="company">
 		<input
-			id="displayname"
-			ref="displayName"
+			id="company"
 			type="text"
-			name="displayname"
-			:placeholder="t('settings', 'Your full name')"
-			:value="displayName"
+			name="company"
+			:placeholder="t('settings', 'Your company')"
+			:value="company"
 			autocapitalize="none"
 			autocomplete="on"
 			autocorrect="off"
 			required
-			@input="onDisplayNameChange">
+			@input="onCompanyChange">
 
-		<div class="displayname__actions-container">
+		<div class="company__actions-container">
 			<transition name="fade">
 				<span v-if="showCheckmarkIcon" class="icon-checkmark" />
 				<span v-else-if="showErrorIcon" class="icon-error" />
@@ -48,16 +47,14 @@ import { showError } from '@nextcloud/dialogs'
 import { emit } from '@nextcloud/event-bus'
 import debounce from 'debounce'
 
-import { savePrimaryDisplayName } from '../../../service/PersonalInfo/DisplayNameService'
-import { validateDisplayName } from '../../../utils/validate'
-
-// TODO Global avatar updating on events (e.g. updating the displayname) is currently being handled by global js, investigate using https://github.com/nextcloud/nextcloud-event-bus for global avatar updating
+// import { savePrimaryCompany } from '../../../service/PersonalInfo/DisplayNameService'
+// import { validateCompany } from '../../../utils/validate'
 
 export default {
-	name: 'DisplayName',
+	name: 'Company',
 
 	props: {
-		displayName: {
+		company: {
 			type: String,
 			required: true,
 		},
@@ -69,7 +66,7 @@ export default {
 
 	data() {
 		return {
-			initialDisplayName: this.displayName,
+			initialCompany: this.company,
 			localScope: this.scope,
 			showCheckmarkIcon: false,
 			showErrorIcon: false,
@@ -77,22 +74,22 @@ export default {
 	},
 
 	methods: {
-		onDisplayNameChange(e) {
-			this.$emit('update:display-name', e.target.value)
-			this.debounceDisplayNameChange(e.target.value.trim())
+		onCompanyChange(e) {
+			this.$emit('update:company', e.target.value)
+			this.debounceCompanyChange(e.target.value.trim())
 		},
 
-		debounceDisplayNameChange: debounce(async function(displayName) {
-			if (validateDisplayName(displayName)) {
-				await this.updatePrimaryDisplayName(displayName)
+		debounceCompanyChange: debounce(async function(company) {
+			if (validateCompany(company)) {
+				await this.updatePrimaryCompany(company)
 			}
 		}, 500),
 
-		async updatePrimaryDisplayName(displayName) {
+		async updatePrimaryCompany(company) {
 			try {
-				const responseData = await savePrimaryDisplayName(displayName)
+				const responseData = await savePrimaryCompany(company)
 				this.handleResponse({
-					displayName,
+					company,
 					status: responseData.ocs?.meta?.status,
 				})
 			} catch (e) {
@@ -103,11 +100,11 @@ export default {
 			}
 		},
 
-		handleResponse({ displayName, status, errorMessage, error }) {
+		handleResponse({ company, status, errorMessage, error }) {
 			if (status === 'ok') {
 				// Ensure that local state reflects server state
-				this.initialDisplayName = displayName
-				emit('settings:display-name:updated', displayName)
+				this.initialCompany = company
+				emit('settings:display-name:updated', company)
 				this.showCheckmarkIcon = true
 				setTimeout(() => { this.showCheckmarkIcon = false }, 2000)
 			} else {
@@ -126,7 +123,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.displayname {
+.company {
 	display: grid;
 	align-items: center;
 
@@ -144,7 +141,7 @@ export default {
 		cursor: text;
 	}
 
-	.displayname__actions-container {
+	.company__actions-container {
 		grid-area: 1 / 1;
 		justify-self: flex-end;
 		height: 30px;

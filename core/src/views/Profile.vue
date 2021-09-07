@@ -61,37 +61,37 @@
 						:default-icon="primaryAction.icon"
 						:menu-title="primaryAction.label"
 						:force-menu="false">
-						<ActionButton
+						<ActionLink
 							:close-after-click="true"
 							:icon="primaryAction.icon"
-							:title="primaryAction.label"
-							@click="primaryAction.cb">
+							:href="primaryAction.href"
+							:title="primaryAction.label">
 							{{ primaryAction.label }}
-						</ActionButton>
+						</ActionLink>
 					</Actions>
 					<div class="user-actions__other">
 						<Actions v-for="action in allActions.slice(1, 4)"
 							:key="action.icon"
 							:default-icon="action.icon"
 							:menu-title="action.label">
-							<ActionButton
+							<ActionLink
 								:close-after-click="true"
 								:icon="action.icon"
-								:title="action.label"
-								@click="action.cb">
+								:href="action.href"
+								:title="action.label">
 								{{ action.label }}
-							</ActionButton>
+							</ActionLink>
 						</Actions>
 						<template v-if="otherActions">
 							<Actions v-for="action in otherActions"
 								:key="action.icon"
 								:force-menu="true">
-								<ActionButton
+								<ActionLink
 									:close-after-click="true"
-									:icon="action.icon"
-									@click="action.cb">
+									:href="action.href"
+									:icon="action.icon">
 									{{ action.label }}
-								</ActionButton>
+								</ActionLink>
 							</Actions>
 						</template>
 					</div>
@@ -132,11 +132,12 @@ import { generateUrl } from '@nextcloud/router'
 
 import Avatar from '@nextcloud/vue/dist/Components/Avatar'
 import Actions from '@nextcloud/vue/dist/Components/Actions'
-import ActionButton from '@nextcloud/vue/dist/Components/ActionButton'
+import ActionLink from '@nextcloud/vue/dist/Components/ActionLink'
 // import Modal from '@nextcloud/vue/dist/Components/Modal'
 // import ProfileSettings from './ProfileSettings'
 // import PhoneIcon from 'vue-material-design-icons/Phone'
 import MapMarkerIcon from 'vue-material-design-icons/MapMarker'
+import { showError } from '@nextcloud/dialogs'
 
 const { userId, displayName, address, actionParameters } = loadState('core', 'profileParameters', {})
 const status = loadState('core', 'status', {})
@@ -147,7 +148,7 @@ export default {
 	components: {
 		Avatar,
 		Actions,
-		ActionButton,
+		ActionLink,
 		// PhoneIcon,
 		MapMarkerIcon,
 	},
@@ -167,7 +168,7 @@ export default {
 
 	computed: {
 		isCurrentUser() {
-			return getCurrentUser().uid === this.userId
+			return getCurrentUser()?.uid === this.userId
 		},
 
 		primaryAction() {
@@ -182,27 +183,27 @@ export default {
 				talkEnabled: {
 					icon: 'icon-talk',
 					label: `Talk to ${this.displayName}`,
-					cb: this.openTalk,
+					href: generateUrl('apps/spreed?callUser={userId}', { userId }),
 				},
 				email: {
 					icon: 'icon-mail',
 					label: `Email ${actionParameters.email}`,
-					cb: this.sendEmail,
+					href: `mailto:${actionParameters.email}`,
 				},
 				phoneNumber: {
 					icon: 'icon-phone',
 					label: `Call phone number (${actionParameters.phoneNumber})`,
-					cb: this.callPhone,
+					href: `tel:${actionParameters.phoneNumber}`,
 				},
 				website: {
 					icon: 'icon-timezone',
 					label: `Visit website (${actionParameters.website})`,
-					cb: this.openWebsite,
+					href: actionParameters.website,
 				},
 				twitterUsername: {
 					icon: 'icon-twitter',
 					label: `View Twitter profile ${actionParameters.twitterUsername[0] === '@' ? actionParameters.twitterUsername : `@${actionParameters.twitterUsername}`}`,
-					cb: this.openTwitterProfile,
+					href: `https://twitter.com/${actionParameters.twitterUsername}`,
 				},
 			}
 
@@ -236,31 +237,13 @@ export default {
 			const statusMenuItem = document.querySelector('.user-status-menu-item__toggle')
 			if (statusMenuItem) {
 				statusMenuItem.click()
+			} else {
+				showError(t('core', 'Error opening the user status modal, try hard refreshing the page'))
 			}
 		},
 
 		openSettings() {
 			location.href = generateUrl('/settings/user')
-		},
-
-		sendEmail() {
-			location.href = `mailto:${actionParameters.email}`
-		},
-
-		openWebsite() {
-			window.open(actionParameters.website, '_blank')
-		},
-
-		openTalk() {
-			location.href = generateUrl('apps/spreed?callUser={userId}', { userId })
-		},
-
-		callPhone() {
-			location.href = `tel:${actionParameters.phoneNumber}`
-		},
-
-		openTwitterProfile() {
-			window.open(`https://twitter.com/${actionParameters.twitterUsername}`, '_blank')
 		},
 	},
 }
@@ -289,7 +272,6 @@ $content-max-width: 640px;
 		position: sticky;
 		height: 190px;
 		top: -40px;
-		background-image: linear-gradient(40deg, var(--color-primary-gradient-dark) 0%, var(--color-primary-gradient-light) 100%);
 
 		&__container {
 			align-self: flex-end;

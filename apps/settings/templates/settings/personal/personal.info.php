@@ -100,10 +100,10 @@ script('settings', [
 
 	<div class="personal-settings-container">
 		<div class="personal-settings-setting-box">
-			<div id="vue-displaynamesection" class="section"></div>
+			<div id="vue-displayname-section"></div>
 		</div>
 		<div class="personal-settings-setting-box">
-			<div id="vue-emailsection" class="section"></div>
+			<div id="vue-email-section"></div>
 		</div>
 		<div class="personal-settings-setting-box">
 			<form id="phoneform" class="section">
@@ -241,14 +241,26 @@ script('settings', [
 				<input type="hidden" id="twitterscope" value="<?php p($_['twitterScope']) ?>">
 			</form>
 		</div>
+		<div class="personal-settings-setting-box">
+			<div id="vue-company-section"></div>
+		</div>
+		<div class="personal-settings-setting-box">
+			<div id="vue-job-title-section"></div>
+		</div>
+		<div class="personal-settings-setting-box">
+			<div id="vue-headline-section"></div>
+		</div>
+		<div class="personal-settings-setting-box">
+			<div id="vue-biography-section"></div>
+		</div>
 	</div>
 
 	<div class="profile-settings-container">
 		<div class="personal-settings-setting-box">
-			<div id="vue-profilesection" class="section"></div>
+			<div id="vue-profile-section"></div>
 		</div>
 		<div class="personal-settings-setting-box personal-settings-language-box">
-			<div id="vue-languagesection" class="section"></div>
+			<div id="vue-language-section"></div>
 		</div>
 		<div class="personal-settings-setting-box personal-settings-locale-box">
 			<?php if (isset($_['activelocale'])) { ?>
