@@ -62,6 +62,7 @@ use OCA\DAV\DAV\PublicAuth;
 use OCA\DAV\Events\SabrePluginAuthInitEvent;
 use OCA\DAV\Files\BrowserErrorPagePlugin;
 use OCA\DAV\Files\LazySearchBackend;
+use OCA\DAV\Files\BundlingPlugin;
 use OCA\DAV\Provisioning\Apple\AppleProvisioningPlugin;
 use OCA\DAV\SystemTag\SystemTagPlugin;
 use OCA\DAV\Upload\ChunkingPlugin;
@@ -294,6 +295,9 @@ class Server {
 						\OC::$server->getShareManager(),
 						$view
 					));
+					$this->server->addPlugin(
+						new BundlingPlugin($view)
+					);
 				}
 				$this->server->addPlugin(new \OCA\DAV\CalDAV\BirthdayCalendar\EnablePlugin(
 					\OC::$server->getConfig(),

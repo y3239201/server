@@ -12,6 +12,7 @@
  * @author scambra <sergio@entrecables.com>
  * @author Thomas Müller <thomas.mueller@tmit.eu>
  * @author Vincent Petry <vincent@nextcloud.com>
+ * @author Louis Chemineau <louis@chmn.me>
  *
  * @license AGPL-3.0
  *
@@ -79,6 +80,23 @@ class QuotaPlugin extends \Sabre\DAV\ServerPlugin {
 		$server->on('beforeWriteContent', [$this, 'beforeWriteContent'], 10);
 		$server->on('beforeCreateFile', [$this, 'beforeCreateFile'], 10);
 		$server->on('beforeMove', [$this, 'beforeMove'], 10);
+		$server->on('beforeWriteBundle', [$this, 'beforeWriteBundle'], 10);
+	}
+
+	/**
+	 * Check quota before writing bundle
+	 *
+	 * @param string $uri target file URI
+	 * @param resource $data data
+	 * @param INode $parent Sabre Node
+	 * @param bool $modified modified
+	 */
+	public function beforeWriteBundle($uri, $data, INode $parent, $modified) {
+		if (!$parent instanceof Node) {
+			return;
+		}
+
+		return $this->checkQuota($parent->getPath() . '/' . basename($uri));
 	}
 
 	/**
